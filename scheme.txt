@@ -1,0 +1,56 @@
+users
+-----
+id int
+name varchar
+surname varchar
+email varchar
+DOB date
+reg_date date
+role varchar * role_id -> role.id
+membership varchar * membership_id -> membership.id
+status varchar * int (0, 10, 20, 30) -> StateMachine( unregisterd: 0, registered: 10, verified: 20 ...) = 0
+user_main_page
+picture_profile
+picture_background
+theme int
+region_id -> region.id
+phone
+verified bool
+updated_at time
+created_at time
+publicity_status : 0 StateMachine
+... has many /region
+ 
+friend_invitations
+-------
+id
+initiator_user_id
+second_user_id
+status (pending, accepted, rejected)
+timestamps
+ ... has and belongs to many / users to users
+ 
+chats
+------
+id
+user_owner_id
+time
+ 
+ 
+chat_members
+-------
+id
+chat_id
+user_id
+join_date date
+status: banned, moderator, regular
+ 
+ 
+messages
+------
+id
+created_at
+chat_id int
+user_id int
+message_content_link varchar
+preview varchar
