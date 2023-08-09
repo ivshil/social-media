@@ -3,7 +3,7 @@ version: '3.9'
 services:
   postgres:
     image: postgres:15
-    container_name: postgres_url_short
+    container_name: postgres_social_media
     restart: unless-stopped
     env_file: .env
     environment:
@@ -19,14 +19,14 @@ services:
 
   adminer:
     image: adminer
-    container_name: adminer_url_short
+    container_name: adminer_social_media
     restart: unless-stopped
     ports:
       - ${ADM_PORT}
 
   go_app:
     image: golang:1.20.5
-    container_name: go_url_short
+    container_name: go_social_media
     build:
       context: .
       args:

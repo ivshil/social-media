@@ -12,12 +12,48 @@ import (
 )
 
 var schema = `CREATE TABLE users (
-    first_name varchar(50),
+	id serial PRIMARY KEY,
+    first_name varchar(50) NOT NULL,
     last_name varchar(50),
-    email varchar(50),
+    email varchar(50) NOT NULL,
 	birth_date timestamp,
-	created_at timestamp,
-	updated_at timestamp
+	created_at timestamp NOT NULL,
+	updated_at timestamp NOT NULL
+);
+
+CREATE TABLE friends (
+    id serial PRIMARY KEY,
+    initiator_user_id int REFERENCES users(id) NOT NULL,
+    second_user_id int REFERENCES users(id) NOT NULL,
+    status integer NOT NULL,
+    created_at timestamp NOT NULL,
+    updated_at timestamp NOT NULL
+);
+
+CREATE TABLE chats (
+    id serial PRIMARY KEY,
+    user_owner_id int REFERENCES users(id) NOT NULL,
+    status boolean NOT NULL,
+    created_at timestamp NOT NULL,
+    updated_at timestamp NOT NULL
+);
+
+CREATE TABLE chat_members (
+    id serial PRIMARY KEY,
+    chat_id int REFERENCES chats(id) NOT NULL,
+    user_id int REFERENCES users(id) NOT NULL,
+    join_date date NOT NULL,
+    status varchar(10) NOT NULL,
+    UNIQUE (chat_id, user_id)
+);
+
+CREATE TABLE messages (
+    id serial PRIMARY KEY,
+    created_at timestamp NOT NULL,
+    chat_id int REFERENCES chats(id) NOT NULL,
+    user_id int REFERENCES users(id) NOT NULL,
+    message_content_link varchar,
+    preview varchar
 )`
 
 var (
@@ -60,10 +96,36 @@ func main() {
 	// database drivers;  pq will exec them all, sqlite3 won't, ymmv
 	db.MustExec(schema)
 
+	userOne := User{
+		FirstName: "Ivan",
+		LastName:  "Shishman",
+		Email:     "ivsh@sh.c",
+		BirthDate: time.Now(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	userTwo := User{
+		FirstName: "Grozdan",
+		LastName:  "Cvetkov",
+		Email:     "g.cvetkov@pete.bg",
+		BirthDate: time.Now(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+	query := `INSERT INTO users (first_name, last_name, email, birth_date, created_at, updated_at)
+	VALUES (:first_name, :last_name, :email, :birth_date, :created_at, :updated_at)`
+
 	tx := db.MustBegin()
-	tx.MustExec("INSERT INTO users (first_name, last_name, email, birth_date, crreated_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)", "Jason", "Moiron", "jmoiron@jmoiron.net", time.Now(), time.Now(), time.Now())
-	tx.MustExec("INSERT INTO users (first_name, last_name, email, birth_date, crreated_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)", "John", "Doe", "johndoeDNE@gmail.net", time.Now(), time.Now(), time.Now())
+	tx.MustExec("INSERT INTO users (first_name, last_name, email, birth_date, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)", "Jason", "Moiron", "jmoiron@jmoiron.net", time.Now(), time.Now(), time.Now())
+	tx.MustExec("INSERT INTO users (first_name, last_name, email, birth_date, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)", "John", "Doe", "johndoeDNE@gmail.net", time.Now(), time.Now(), time.Now())
+	tx.NamedExec(query, userOne)
+	tx.NamedExec(query, userTwo)
+	tx.MustExec("INSERT INTO users (first_name, last_name, email, birth_date, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)", "Zuck", "ZeCuck", "zuki@fb.net", time.Now(), time.Now(), time.Now())
+	tx.MustExec("INSERT INTO users (first_name, last_name, email, birth_date, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)", "Richard", "Brandson", "fendde@xyz.xyz", time.Now(), time.Now(), time.Now())
 	tx.Commit()
+
+	/
 
 	users := []User{}
 	db.Select(&users, "SELECT * FROM person ORDER BY first_name ASC")
