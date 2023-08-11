@@ -19,22 +19,24 @@ verified bool
 updated_at time
 created_at time
 publicity_status : 0 StateMachine
-... has many /region
+### has many /region
  
 friend_invitations
 -------
-id
-initiator_user_id
-second_user_id
-status (pending, accepted, rejected)
-timestamps
- ... has and belongs to many / users to users
+id (int autoincrement)
+initiator_user_id (int foreign key from users)
+second_user_id (int foreign key from users)
+status (byte) (pending, accepted, rejected)
+timestamps eg. createdat updatedat
+### has and belongs to many / users to users
  
 chats
 ------
 id
 user_owner_id
-time
+status bool
+createdat
+updatedat
  
  
 chat_members
